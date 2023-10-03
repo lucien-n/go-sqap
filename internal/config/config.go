@@ -1,59 +1,30 @@
 package config
 
 import (
-	"log"
+	"fmt"
 	"os"
-	"path/filepath"
-	"strconv"
 
 	"github.com/joho/godotenv"
 )
 
 type Config struct {
-	DBUsername string
-	DBPassword string
-	DBHost     string
-	DBPort     string
-	DBName     string
+	DBUrl string
 
 	APIHost string
 	APIPort string
-
-	DEBUG bool
-
-	PREFIX_PATH string
 }
 
-func LoadConfig(dotenv_path string) Config {
+func LoadConfig(dotenv_path string) *Config {
 	err := godotenv.Load(dotenv_path)
 
 	if err != nil {
-		log.Fatal("Error while loading .env file: ", err)
+		fmt.Fprintf(os.Stderr, "error while getting config %s: %s", dotenv_path, err)
+		os.Exit(1)
 	}
 
-	debug, err := strconv.ParseBool(os.Getenv("DEBUG"))
-	if err != nil {
-		log.Println("Error while parsing DEBUG to bool: ", err)
-		debug = false
-	}
-
-	workingDir, err := filepath.Abs(filepath.Dir("."))
-	if err != nil {
-		log.Println("Error while getting working directory: ", err)
-	}
-
-	return Config{
-		DBUsername: os.Getenv("DB_USER"),
-		DBPassword: os.Getenv("DB_PASS"),
-		DBHost:     os.Getenv("DB_HOST"),
-		DBPort:     os.Getenv("DB_PORT"),
-		DBName:     os.Getenv("DB_NAME"),
-
+	return &Config{
+		DBUrl:   os.Getenv("DB_URL"),
 		APIHost: os.Getenv("API_HOST"),
 		APIPort: os.Getenv("API_PORT"),
-
-		DEBUG: debug,
-
-		PREFIX_PATH: workingDir,
 	}
 }

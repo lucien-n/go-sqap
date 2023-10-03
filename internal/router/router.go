@@ -1,31 +1,18 @@
 package router
 
 import (
-	"go-sqap/internal/handlers"
-	"time"
-
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
+	"github.com/goccy/go-json"
+	"github.com/gofiber/fiber/v2"
 )
 
-func CreateRouter(authHandler handlers.AuthHandler, userHandler handlers.UserHandler) *gin.Engine {
-	router := gin.Default()
+func CreateRouter() *fiber.App {
+	app := fiber.New(fiber.Config{
+		JSONEncoder:   json.Marshal,
+		JSONDecoder:   json.Unmarshal,
+		AppName:       "SQAP",
+		ServerHeader:  "Fiber",
+		CaseSensitive: true,
+	})
 
-	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"*"},
-		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Content-Length"},
-		ExposeHeaders:    []string{"Content-Length"},
-		AllowCredentials: true,
-		MaxAge:           12 * time.Hour,
-	}))
-
-	api := router.Group("/api")
-	{
-		api.POST("/login", authHandler.Login)
-		api.POST("/register", userHandler.CreateUser)
-		api.GET("/users", userHandler.GetUsers)
-	}
-
-	return router
+	return app
 }
